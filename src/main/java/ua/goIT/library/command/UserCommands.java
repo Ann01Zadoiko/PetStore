@@ -7,6 +7,7 @@ import ua.goIT.library.view.View;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class UserCommands implements Command{
     public static final String USER = "user";
@@ -96,7 +97,7 @@ public class UserCommands implements Command{
     public void delete(){
         view.write("Enter username");
         String username = view.read();
-        service.delete(username);
+        ApiResponse response = service.delete(username);
         view.write(String.format("User %s deleted", username));
     }
 

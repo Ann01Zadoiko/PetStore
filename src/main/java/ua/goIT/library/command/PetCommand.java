@@ -6,6 +6,7 @@ import ua.goIT.library.view.View;
 
 import java.io.File;
 import java.util.Map;
+import java.util.Objects;
 
 public class PetCommand implements Command{
     public static final String PET = "pet";
@@ -54,72 +55,86 @@ public class PetCommand implements Command{
     public void add(){
         Pet pet = new Pet();
         Category category = new Category();
-        view.write("Enter pet id");
-        pet.setId(Integer.valueOf(view.read()));
-        view.write("Enter name");
-        pet.setName(view.read());
-        view.write("Enter pet status");
-        pet.setStatus(view.read());
-        view.write("Enter category id");
-        category.setId(Integer.valueOf(view.read()));
-        view.write("Enter category name");
-        category.setName(view.read());
-        pet.setCategory(category);
-        view.write("Enter count of photo urls");
-        String[] photoUrls = new String[Integer.valueOf(view.read())];
-        view.write("Enter every url in turn");
-        for (int i = 0; i < photoUrls.length; i++) {
-            photoUrls[i] = view.read();
+        try {
+            view.write("Enter pet id");
+            pet.setId(Integer.valueOf(view.read()));
+            view.write("Enter name");
+            pet.setName(view.read());
+            view.write("Enter pet status");
+            pet.setStatus(view.read());
+            view.write("Enter category id");
+            category.setId(Integer.valueOf(view.read()));
+            view.write("Enter category name");
+            category.setName(view.read());
+            pet.setCategory(category);
+            view.write("Enter count of photo urls");
+            String[] photoUrls = new String[Integer.valueOf(view.read())];
+            view.write("Enter every url in turn");
+            for (int i = 0; i < photoUrls.length; i++) {
+                photoUrls[i] = view.read();
+            }
+            pet.setPhotoUrls(photoUrls);
+            view.write("Enter count of tags");
+            Tag[] tags = new Tag[Integer.valueOf(view.read())];
+            for (int i = 0; i < tags.length; i++) {
+                Tag tag = new Tag();
+                view.write("Enter tag id");
+                tag.setId(Integer.valueOf(view.read()));
+                view.write("Enter tag name");
+                tag.setName(view.read());
+                tags[i] = tag;
+            }
+            pet.setTags(tags);
+        } catch (NumberFormatException ex) {
+            view.write("Illegal number. Please try again");
+        } catch (IllegalArgumentException ex) {
+            view.write("Illegal pet status. Please, try again -> available, pending, sold");
         }
-        pet.setPhotoUrls(photoUrls);
-        view.write("Enter count of tags");
-        Tag[] tags = new Tag[Integer.valueOf(view.read())];
-        for (int i = 0; i < tags.length; i++) {
-            Tag tag = new Tag();
-            view.write("Enter tag id");
-            tag.setId(Integer.valueOf(view.read()));
-            view.write("Enter tag name");
-            tag.setName(view.read());
-            tags[i] = tag;
-        }
-        pet.setTags(tags);
         Pet newPet = service.add(pet);
-        view.write(String.format("Pet %s added", pet.getName()));
+        view.write(String.format("Pet %s added", newPet.getName()));
     }
 
     public void update(){
-        view.write("Enter pet id");
-        Pet pet = service.getById(Integer.valueOf(view.read()));
         Category category = new Category();
-        view.write("Enter new name");
-        pet.setName(view.read());
-        view.write("Enter pet status");
-        pet.setStatus(view.read());
-        view.write("Enter category id");
-        category.setId(Integer.valueOf(view.read()));
-        view.write("Enter category name");
-        category.setName(view.read());
-        pet.setCategory(category);
-        view.write("Enter new count of photo urls");
-        String[] photoUrls = new String[Integer.valueOf(view.read())];
-        view.write("Enter every url in turn");
-        for (int i = 0; i < photoUrls.length; i++) {
-            photoUrls[i] = view.read();
+        Pet pet = null;
+        try {
+            view.write("Enter pet id");
+            Integer id = Integer.valueOf(view.read());
+             pet = service.getById(id);
+            view.write("Enter new name");
+            pet.setName(view.read());
+            view.write("Enter pet status");
+            pet.setStatus(view.read());
+            view.write("Enter category id");
+            category.setId(Integer.valueOf(view.read()));
+            view.write("Enter category name");
+            category.setName(view.read());
+            pet.setCategory(category);
+            view.write("Enter new count of photo urls");
+            String[] photoUrls = new String[Integer.valueOf(view.read())];
+            view.write("Enter every url in turn");
+            for (int i = 0; i < photoUrls.length; i++) {
+                photoUrls[i] = view.read();
+            }
+            pet.setPhotoUrls(photoUrls);
+            view.write("Enter new count of tags");
+            Tag[] tags = new Tag[Integer.valueOf(view.read())];
+            for (int i = 0; i < tags.length; i++) {
+                Tag tag = new Tag();
+                view.write("Enter tag id");
+                tag.setId(Integer.valueOf(view.read()));
+                view.write("Enter tag name");
+                tag.setName(view.read());
+                tags[i] = tag;
+            }
+            pet.setTags(tags);
+        } catch (NumberFormatException ex) {
+            view.write("Illegal number. Please try again");
+        } catch (IllegalArgumentException ex) {
+            view.write("Illegal pet status. Please, try again -> available, pending, sold");
         }
-        pet.setPhotoUrls(photoUrls);
-        view.write("Enter new count of tags");
-        Tag[] tags = new Tag[Integer.valueOf(view.read())];
-        for (int i = 0; i < tags.length; i++) {
-            Tag tag = new Tag();
-            view.write("Enter tag id");
-            tag.setId(Integer.valueOf(view.read()));
-            view.write("Enter tag name");
-            tag.setName(view.read());
-            tags[i] = tag;
-        }
-        pet.setTags(tags);
         Pet updatePet = service.update(pet);
-        view.write(String.format("Pet %s updated", pet.getName()));
+        view.write(String.format("Pet %s updated", updatePet.getName()));
     }
 
     public void getByStatus(){
@@ -131,8 +146,12 @@ public class PetCommand implements Command{
         view.write("Enter pet id");
         Integer id = Integer.valueOf(view.read());
         Pet pet = service.getById(id);
-        view.write(pet.toString());
+        if (Objects.isNull(pet)){
+            view.write(String.format("Pet with id %s not found", id));
+        } else
+            view.write(pet.toString());
     }
+
 
     public void updateWithFormData(){
         view.write("Enter pet id");
@@ -140,7 +159,13 @@ public class PetCommand implements Command{
         view.write("Enter pet name");
         String name = view.read();
         view.write("Enter pet status");
-        PetStatus status = PetStatus.valueOf(view.read());
+        PetStatus status;
+        try {
+             status = PetStatus.valueOf(view.read());
+        } catch (IllegalArgumentException e){
+            view.write("Illegal pet status. Command terminated");
+            return;
+        }
         ApiResponse response = service.updateWithFormData(status,id,name);
         view.write(response.getMessage());
     }
@@ -148,8 +173,13 @@ public class PetCommand implements Command{
     public void delete(){
         view.write("Enter pet id");
         Integer id = Integer.valueOf(view.read());
-        ApiResponse apiResponse = service.delete(id);
         Pet pet = service.getById(id);
-        view.write(String.format("Pet %s deleted", pet.getName()));
+        if (Objects.isNull(pet)){
+            view.write(String.format("Pet with id %s not found", id));
+            return;
+        } else {
+            ApiResponse apiResponse = service.delete(id);
+            view.write(String.format("Pet %s deleted", pet.getName()));
+        }
     }
 }
